@@ -20,13 +20,35 @@ body {
 input, textarea, button {
   margin: 10px;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
 }
 
-/* Surprise section */
-#surprise {
+/* Celebration page */
+#celebration {
   display: none;
+}
+
+/* Big Image */
+#outputImage {
+  width: 300px;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+
+/* Sparkle animation */
+.sparkle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  animation: fall 3s linear infinite;
+}
+
+@keyframes fall {
+  from { transform: translateY(-100px); opacity: 1; }
+  to { transform: translateY(100vh); opacity: 0; }
 }
 </style>
 </head>
@@ -35,43 +57,32 @@ input, textarea, button {
 
 <h1>🎂 Birthday Edits Website 🎉</h1>
 
-<div class="container">
+<div class="container" id="main">
 
-  <!-- Upload Photo -->
-  <input type="file" id="photoInput">
+  <input type="file" id="photoInput"><br>
 
-  <br>
+  <input type="date" id="dateInput"><br>
 
-  <!-- Date -->
-  <input type="date" id="dateInput">
+  <textarea id="message" placeholder="Write birthday message..."></textarea><br>
 
-  <br>
-
-  <!-- Message -->
-  <textarea id="message" placeholder="Write birthday message..."></textarea>
-
-  <br>
-
-  <!-- Button -->
   <button onclick="startSurprise()">Press for Surprise 🎁</button>
 
 </div>
 
-<!-- Surprise -->
-<div id="surprise">
+<!-- Celebration Page -->
+<div id="celebration">
+  <h1>🎉 Happy Birthday 🎂</h1>
   <h2 id="countdown"></h2>
-  <img id="outputImage" width="200">
+  <img id="outputImage">
   <p id="outputMessage"></p>
 </div>
 
 <!-- Audio -->
-<audio id="song">
-  <source src="birthday.mp3" type="audio/mpeg">
-</audio>
+<audio id="song" src="birthday.mp3"></audio>
 
 <script>
 
-// 🌈 Background colors
+// 🌈 Background color animation
 const colors = ["#ff4d4d", "#ffcc00", "#33cc33", "#3399ff", "#cc33ff"];
 let i = 0;
 
@@ -80,9 +91,12 @@ setInterval(() => {
   i = (i + 1) % colors.length;
 }, 2000);
 
-// 🎁 Main function
+// 🎁 Surprise function
 function startSurprise() {
-  document.getElementById("surprise").style.display = "block";
+
+  // Hide main, show celebration
+  document.getElementById("main").style.display = "none";
+  document.getElementById("celebration").style.display = "block";
 
   // Message
   let msg = document.getElementById("message").value;
@@ -96,8 +110,11 @@ function startSurprise() {
   }
   if(file) reader.readAsDataURL(file);
 
-  // Music
-  document.getElementById("song").play();
+  // 🎵 FIXED SONG PLAY (important)
+  let song = document.getElementById("song");
+  song.play().catch(() => {
+    alert("Click again to play music 🎵");
+  });
 
   // Countdown
   let date = new Date(document.getElementById("dateInput").value);
@@ -107,13 +124,22 @@ function startSurprise() {
     let diff = date - now;
 
     if(diff <= 0) {
-      document.getElementById("countdown").innerText = "🎉 Happy Birthday! 🎉";
+      document.getElementById("countdown").innerText = "🎉 Today is the Day! 🎉";
       return;
     }
 
     let days = Math.floor(diff / (1000 * 60 * 60 * 24));
     document.getElementById("countdown").innerText = days + " days left 🎂";
   }, 1000);
+
+  // ✨ Sparkle effect
+  for(let i=0; i<50; i++){
+    let s = document.createElement("div");
+    s.className = "sparkle";
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.animationDuration = (Math.random() * 3 + 2) + "s";
+    document.body.appendChild(s);
+  }
 }
 
 </script>
