@@ -2,146 +2,208 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Birthday Edits</title>
 
 <style>
-body {
-  font-family: Arial;
-  text-align: center;
-  color: white;
-  transition: background 2s;
-}
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    color: white;
+    margin: 0;
+    transition: background 2.5s ease-in-out;
+    background: #1e90ff; /* Initial color */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+  }
 
-/* Background animation */
-.container {
-  margin-top: 50px;
-}
+  .container {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
 
-input, textarea, button {
-  margin: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-}
+  input, textarea {
+    margin: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    width: 250px;
+    outline: none;
+  }
 
-/* Celebration page */
-#celebration {
-  display: none;
-}
+  /* 2) COOL PRESS BUTTON */
+  .cool-btn {
+    margin-top: 20px;
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(45deg, #ff4757, #ff6b81);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+    transition: all 0.3s ease;
+  }
 
-/* Big Image */
-#outputImage {
-  width: 300px;
-  border-radius: 15px;
-  margin-top: 20px;
-}
+  .cool-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6);
+    background: linear-gradient(45deg, #ff6b81, #ff4757);
+  }
 
-/* Sparkle animation */
-.sparkle {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  background: white;
-  border-radius: 50%;
-  animation: fall 3s linear infinite;
-}
+  /* 3) LIVE TIMER STYLE */
+  #timerDisplay {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 15px 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
 
-@keyframes fall {
-  from { transform: translateY(-100px); opacity: 1; }
-  to { transform: translateY(100vh); opacity: 0; }
-}
+  /* 4) SECOND PAGE LAYOUT */
+  #celebration {
+    display: none;
+    width: 90%;
+    max-width: 600px;
+  }
+
+  #outputImage {
+    width: 100%; /* Large Photo */
+    max-height: 65vh;
+    object-fit: contain;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+  }
+
+  #outputMessage {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+  }
+
+  /* CELEBRATION SPARKLES */
+  .sparkle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: fall 3s linear infinite;
+    z-index: 999;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+  }
 </style>
 </head>
 
 <body>
 
-<h1>🎂 Birthday Edits Website 🎉</h1>
-
 <div class="container" id="main">
-
-  <input type="file" id="photoInput"><br>
-
+  <h1>🎂 Birthday Edits 🎉</h1>
+  <input type="file" id="photoInput" accept="image/*"><br>
   <input type="date" id="dateInput"><br>
+  
+  <div id="timerDisplay">Select a date to start timer</div>
 
   <textarea id="message" placeholder="Write birthday message..."></textarea><br>
-
-  <button onclick="startSurprise()">Press for Surprise 🎁</button>
-
+  <button class="cool-btn" onclick="startSurprise()">Press for Surprise 🎁</button>
 </div>
 
-<!-- Celebration Page -->
 <div id="celebration">
-  <h1>🎉 Happy Birthday 🎂</h1>
-  <h2 id="countdown"></h2>
+  <h1>🎊 Happy Birthday! 🎊</h1>
   <img id="outputImage">
   <p id="outputMessage"></p>
 </div>
 
-<!-- Audio -->
-<audio id="song" src="birthday.mp3"></audio>
+<audio id="song" loop>
+  <source src="birthday.mp3" type="audio/mpeg">
+</audio>
 
 <script>
+// Background color rotation
+const colors = ["#ff4d4d", "#33cc33", "#3399ff", "#cc33ff", "#ff9f43"];
+let colorIdx = 0;
+setInterval(() => {
+  document.body.style.background = colors[colorIdx];
+  colorIdx = (colorIdx + 1) % colors.length;
+}, 3000);
 
-// 🌈 Background color animation
-const colors = ["#ff4d4d", "#ffcc00", "#33cc33", "#3399ff", "#cc33ff"];
-let i = 0;
+// 3) LIVE TIMER LOGIC (Days, Hours, Mins, Secs)
+const dateInput = document.getElementById('dateInput');
+const timerDisplay = document.getElementById('timerDisplay');
 
 setInterval(() => {
-  document.body.style.background = colors[i];
-  i = (i + 1) % colors.length;
-}, 2000);
+  if(!dateInput.value) return;
+  
+  const targetDate = new Date(dateInput.value).getTime();
+  const now = new Date().getTime();
+  const diff = targetDate - now;
 
-// 🎁 Surprise function
+  if(diff <= 0) {
+    timerDisplay.innerText = "🎉 It's Birthday Time! 🎉";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+  timerDisplay.innerText = `${days}d ${hours}h ${mins}m ${secs}s left 🎂`;
+}, 1000);
+
+// 1) START SURPRISE FUNCTION
 function startSurprise() {
+  const mainPage = document.getElementById("main");
+  const celebPage = document.getElementById("celebration");
+  const song = document.getElementById("song");
 
-  // Hide main, show celebration
-  document.getElementById("main").style.display = "none";
-  document.getElementById("celebration").style.display = "block";
+  // Play Song
+  song.play().catch(e => console.log("Audio play blocked until interaction"));
 
-  // Message
-  let msg = document.getElementById("message").value;
-  document.getElementById("outputMessage").innerText = msg;
+  // Change Page
+  mainPage.style.display = "none";
+  celebPage.style.display = "block";
 
-  // Image
+  // Set Message and Image
+  document.getElementById("outputMessage").innerText = document.getElementById("message").value;
+  
   let file = document.getElementById("photoInput").files[0];
-  let reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById("outputImage").src = e.target.result;
+  if(file) {
+    let reader = new FileReader();
+    reader.onload = (e) => document.getElementById("outputImage").src = e.target.result;
+    reader.readAsDataURL(file);
   }
-  if(file) reader.readAsDataURL(file);
 
-  // 🎵 FIXED SONG PLAY (important)
-  let song = document.getElementById("song");
-  song.play().catch(() => {
-    alert("Click again to play music 🎵");
-  });
-
-  // Countdown
-  let date = new Date(document.getElementById("dateInput").value);
-
-  setInterval(() => {
-    let now = new Date();
-    let diff = date - now;
-
-    if(diff <= 0) {
-      document.getElementById("countdown").innerText = "🎉 Today is the Day! 🎉";
-      return;
-    }
-
-    let days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    document.getElementById("countdown").innerText = days + " days left 🎂";
-  }, 1000);
-
-  // ✨ Sparkle effect
-  for(let i=0; i<50; i++){
-    let s = document.createElement("div");
-    s.className = "sparkle";
-    s.style.left = Math.random() * 100 + "vw";
-    s.style.animationDuration = (Math.random() * 3 + 2) + "s";
-    document.body.appendChild(s);
-  }
+  // 1 & 4) CELEBRATION SPARKLES & ANIMATION
+  createSparkles();
 }
 
+function createSparkles() {
+  const partyColors = ['#FFD700', '#FF69B4', '#00FFFF', '#ADFF2F', '#FFFFFF'];
+  for(let i=0; i < 60; i++) {
+    let sparkle = document.createElement("div");
+    sparkle.className = "sparkle";
+    sparkle.style.left = Math.random() * 100 + "vw";
+    sparkle.style.backgroundColor = partyColors[Math.floor(Math.random() * partyColors.length)];
+    sparkle.style.animationDuration = (Math.random() * 2 + 2) + "s";
+    sparkle.style.animationDelay = Math.random() * 2 + "s";
+    document.body.appendChild(sparkle);
+  }
+}
 </script>
 
 </body>
